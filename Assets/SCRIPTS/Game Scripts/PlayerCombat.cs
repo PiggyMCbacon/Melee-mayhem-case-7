@@ -3,114 +3,123 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerCombat : MonoBehaviour
 {
+    [Header("Attack Settings")]
     public float chargeDuration = 1.5f;
-    public Transform clubTip; // where to raycast / detect hits from
-    public float hitRange = 2f;
     public float hitForce = 15f;
+    public float hitRange = 2f;
     public LayerMask enemyLayer;
+
+    [Header("Club Settings")]
+    public Transform club; // your cylinder object
+    public Vector3 idleRotation = new Vector3(0, 0, 0);
+    public Vector3 chargedRotation = new Vector3(-60, 0, 0);
+    public Vector3 swingRotation = new Vector3(90, 0, 0);
+    public float swingSpeed = 6f;
+
+    [Header("Movement")]
     public float moveSpeed = 4f;
 
     Rigidbody rb;
-    float chargeTimer = 0f;
     bool isCharging = false;
     bool chargedReady = false;
+    float chargeTimer = 0f;
+    Quaternion targetRot;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        if (club != null)
+            targetRot = Quaternion.Euler(idleRotation);
     }
 
     void Update()
     {
-        // Basic movement (placeholder) — replace with your movement system
+        // Movement (simple)
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         Vector3 move = new Vector3(h, 0, v);
         if (move.magnitude > 0.1f)
         {
-            Vector3 target = transform.position + move.normalized;
             transform.forward = Vector3.Lerp(transform.forward, move.normalized, 0.2f);
             rb.MovePosition(transform.position + move * moveSpeed * Time.deltaTime);
         }
 
-        // Charge attack input (left click)
+        // Charge
         if (Input.GetMouseButtonDown(0))
         {
             isCharging = true;
             chargeTimer = 0f;
-            chargedReady = false;
         }
 
         if (isCharging)
         {
             chargeTimer += Time.deltaTime;
+
+            // rotate club backward smoothly
+            if (club != null)
+            {
+                targetRot = Quaternion.Euler(chargedRotation);
+                club.localRotation = Quaternion.Lerp(club.localRotation, targetRot, Time.deltaTime * 4f);
+            }
+
             if (chargeTimer >= chargeDuration)
             {
                 chargedReady = true;
-                // feedback: you could play a sound / VFX here
             }
 
             if (Input.GetMouseButtonUp(0))
             {
-                // release
                 isCharging = false;
                 if (chargedReady)
-                {
-                    PerformChargedHit();
-                }
+                    StartCoroutine(SwingClub());
                 else
-                {
-                    // light swing (optional)
-                    PerformLightHit();
-                }
+                    StartCoroutine(SwingClub(0.5f)); // short swing if not fully charged
+
                 chargedReady = false;
             }
         }
+        else if (club != null && !isCharging)
+        {
+            // return to idle
+            targetRot = Quaternion.Euler(idleRotation);
+            club.localRotation = Quaternion.Lerp(club.localRotation, targetRot, Time.deltaTime * 4f);
+        }
     }
 
-    void PerformChargedHit()
+    System.Collections.IEnumerator SwingClub(float multiplier = 1f)
     {
-        // detect enemies in front using SphereCast or OverlapSphere
-        Vector3 origin = clubTip != null ? clubTip.position : transform.position + transform.forward * 1f;
-        Collider[] hits = Physics.OverlapSphere(origin, hitRange, enemyLayer);
-        foreach (var c in hits)
+        // quick forward swing
+        if (club != null)
         {
-            var enemy = c.GetComponentInParent<EnemyAI>();
-            if (enemy != null)
+            Quaternion swingRot = Quaternion.Euler(swingRotation);
+            float t = 0;
+            while (t < 1f)
             {
-                Vector3 dir = (c.transform.position - transform.position).normalized;
-                enemy.TakeHit(dir, hitForce, false);
+                t += Time.deltaTime * swingSpeed;
+                club.localRotation = Quaternion.Slerp(Quaternion.Euler(chargedRotation), swingRot, t);
+                yield return null;
             }
-        }
-    }
 
-    void PerformLightHit()
-    {
-        // small push / damage; optional
-        Vector3 origin = clubTip != null ? clubTip.position : transform.position + transform.forward * 1f;
-        Collider[] hits = Physics.OverlapSphere(origin, hitRange * 0.7f, enemyLayer);
-        foreach (var c in hits)
-        {
-            var enemy = c.GetComponentInParent<EnemyAI>();
-            if (enemy != null)
+            // detect hit
+            Collider[] hits = Physics.OverlapSphere(club.position, hitRange, enemyLayer);
+            foreach (var c in hits)
             {
-                Vector3 dir = (c.transform.position - transform.position).normalized;
-                enemy.TakeHit(dir, hitForce * 0.6f, false);
+                var enemy = c.GetComponentInParent<EnemyAI>();
+                if (enemy != null)
+                {
+                    Vector3 dir = (enemy.transform.position - transform.position).normalized;
+                    enemy.TakeHit(dir, hitForce * multiplier);
+                }
             }
-        }
-    }
 
-    private void OnDrawGizmosSelected()
-    {
-        if (clubTip != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(clubTip.position, hitRange);
-        }
-        else
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position + transform.forward * 1f, hitRange);
+            // return to idle after swing
+            t = 0;
+            while (t < 1f)
+            {
+                t += Time.deltaTime * swingSpeed;
+                club.localRotation = Quaternion.Slerp(swingRot, Quaternion.Euler(idleRotation), t);
+                yield return null;
+            }
         }
     }
 }

@@ -1,12 +1,16 @@
 using UnityEngine;
+using System;
 
 public class CapturePoint : MonoBehaviour
 {
-    [Tooltip("Seconds required while player is inside to win.")]
     public float requiredSeconds = 120f;
-
     private float currentSeconds = 0f;
     private bool playerInside = false;
+
+    // Events for UI
+    public event Action<float, float> onCaptureProgress;
+    public event Action onCaptureEnter;
+    public event Action onCaptureExit;
 
     private void Start()
     {
@@ -19,11 +23,10 @@ public class CapturePoint : MonoBehaviour
         if (playerInside)
         {
             currentSeconds += Time.deltaTime;
-            // Optional: expose progress to UI
-            // Debug.Log($"Capture progress: {currentSeconds}/{requiredSeconds}");
+            onCaptureProgress?.Invoke(currentSeconds, requiredSeconds);
+
             if (currentSeconds >= requiredSeconds)
             {
-                // win
                 GameManager.I.Victory();
                 enabled = false;
             }
@@ -33,12 +36,18 @@ public class CapturePoint : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
+        {
             playerInside = true;
+            onCaptureEnter?.Invoke();
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
+        {
             playerInside = false;
+            onCaptureExit?.Invoke();
+        }
     }
 }
