@@ -15,12 +15,11 @@ public class PlayerMovement : MonoBehaviour
     [Header("Mouse Look")]
     public Transform cameraHolder;
     public float mouseSensitivity = 120f;
-    
 
     private Rigidbody rb;
     private Vector3 moveInput;
     private bool isGrounded;
-    private float pitchRotation = 0f; // vertical look
+    private float pitchRotation = 0f;
 
     void Start()
     {
@@ -30,8 +29,8 @@ public class PlayerMovement : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Prevent tipping
-        rb.freezeRotation = true;
+        // Freeze X/Z rotation only, allow Yaw rotation
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
 
     void Update()
@@ -52,10 +51,11 @@ public class PlayerMovement : MonoBehaviour
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         pitchRotation -= mouseY;
-        pitchRotation = Mathf.Clamp(pitchRotation, -80f, 80f); // hardcoded limit
+        pitchRotation = Mathf.Clamp(pitchRotation, -80f, 80f);
 
-        cameraHolder.localRotation = Quaternion.Euler(pitchRotation, 0f, 0f);
-        transform.Rotate(Vector3.up * mouseX);
+        //cameraHolder.localRotation = Quaternion.Euler(pitchRotation, 0f, 0f);
+        cameraHolder.transform.localEulerAngles = new Vector3(pitchRotation,cameraHolder.transform.localEulerAngles.y+ mouseX,cameraHolder.transform.localEulerAngles.z);
+        //transform.Rotate(Vector3.up * mouseX);
     }
 
     void HandleMovementInput()
@@ -81,8 +81,7 @@ public class PlayerMovement : MonoBehaviour
 
         float control = isGrounded ? 1f : airControl;
         Vector3 targetVelocity = new Vector3(moveInput.x, rb.linearVelocity.y, moveInput.z);
-        Vector3 velocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * acceleration * control);
-        rb.linearVelocity = velocity;
+        rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * acceleration * control);
     }
 
     void HandleJump()

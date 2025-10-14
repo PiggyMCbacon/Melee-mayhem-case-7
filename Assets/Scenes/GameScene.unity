@@ -373,7 +373,7 @@ Transform:
   m_GameObject: {fileID: 453539814}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.49, z: 0.09}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -597,11 +597,11 @@ Transform:
   m_GameObject: {fileID: 642051414}
   serializedVersion: 2
   m_LocalRotation: {x: 0.48660886, y: 0.02493725, z: -0.013897549, w: 0.8731534}
-  m_LocalPosition: {x: 0.412, y: 0.321, z: 0.533}
-  m_LocalScale: {x: 0.11591001, y: 0.57955, z: 0.11591}
+  m_LocalPosition: {x: 0.412, y: -0.19100001, z: 0.459}
+  m_LocalScale: {x: 0.115910016, y: 0.5795501, z: 0.115910016}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1554553856}
+  m_Father: {fileID: 926401221}
   m_LocalEulerAnglesHint: {x: 58.262, y: 3.272, z: 0}
 --- !u!136 &642051416
 CapsuleCollider:
@@ -620,7 +620,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5000001
   m_Height: 2
@@ -649,7 +649,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 8b6cf9fd0118781449e487b3f3f1b572, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -737,11 +737,12 @@ Transform:
   m_GameObject: {fileID: 926401220}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.512, z: 0.074}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 453539817}
+  - {fileID: 642051415}
   m_Father: {fileID: 1554553856}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1089010362
@@ -1397,7 +1398,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 642051415}
   - {fileID: 926401221}
   - {fileID: 1877726129}
   m_Father: {fileID: 0}

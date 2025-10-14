@@ -11,24 +11,15 @@ public class PlayerCombat : MonoBehaviour
     public LayerMask enemyLayer;
 
     [Header("Club Settings")]
-    public Transform club; // your cylinder object
-    public Vector3 idleRotation = new Vector3(0, 0, 0);
+    public Transform club; // cylinder
+    public Vector3 idleRotation = Vector3.zero;
     public Vector3 chargedRotation = new Vector3(-60, 0, 0);
     public Vector3 swingRotation = new Vector3(90, 0, 0);
     public float swingSpeed = 6f;
 
-    private Rigidbody rb;
     private bool isCharging = false;
     private bool chargedReady = false;
     private float chargeTimer = 0f;
-    private Quaternion targetRot;
-
-    void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-        if (club != null)
-            targetRot = Quaternion.Euler(idleRotation);
-    }
 
     void Update()
     {
@@ -37,7 +28,6 @@ public class PlayerCombat : MonoBehaviour
 
     void HandleAttack()
     {
-        // Start charging
         if (Input.GetMouseButtonDown(0))
         {
             isCharging = true;
@@ -48,18 +38,14 @@ public class PlayerCombat : MonoBehaviour
         {
             chargeTimer += Time.deltaTime;
 
-            // rotate club backward smoothly while charging
             if (club != null)
             {
-                targetRot = Quaternion.Euler(chargedRotation);
-                club.localRotation = Quaternion.Lerp(club.localRotation, targetRot, Time.deltaTime * 4f);
+                club.localRotation = Quaternion.Lerp(club.localRotation, Quaternion.Euler(chargedRotation), Time.deltaTime * 4f);
             }
 
-            // fully charged
             if (chargeTimer >= chargeDuration)
                 chargedReady = true;
 
-            // release the swing
             if (Input.GetMouseButtonUp(0))
             {
                 isCharging = false;
@@ -68,11 +54,9 @@ public class PlayerCombat : MonoBehaviour
                 chargedReady = false;
             }
         }
-        else if (club != null && !isCharging)
+        else if (club != null)
         {
-            // return club to idle
-            targetRot = Quaternion.Euler(idleRotation);
-            club.localRotation = Quaternion.Lerp(club.localRotation, targetRot, Time.deltaTime * 4f);
+            club.localRotation = Quaternion.Lerp(club.localRotation, Quaternion.Euler(idleRotation), Time.deltaTime * 4f);
         }
     }
 
@@ -80,10 +64,9 @@ public class PlayerCombat : MonoBehaviour
     {
         if (club == null) yield break;
 
-        // forward swing
         Quaternion startRot = Quaternion.Euler(chargedRotation);
         Quaternion endRot = Quaternion.Euler(swingRotation);
-        float t = 0;
+        float t = 0f;
 
         while (t < 1f)
         {
@@ -92,7 +75,7 @@ public class PlayerCombat : MonoBehaviour
             yield return null;
         }
 
-        // detect hit
+        // hit detection
         Collider[] hits = Physics.OverlapSphere(club.position, hitRange, enemyLayer);
         foreach (var c in hits)
         {
@@ -104,8 +87,8 @@ public class PlayerCombat : MonoBehaviour
             }
         }
 
-        // return to idle after swing
-        t = 0;
+        // return to idle
+        t = 0f;
         while (t < 1f)
         {
             t += Time.deltaTime * swingSpeed;
