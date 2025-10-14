@@ -3,41 +3,68 @@ using UnityEngine.UI;
 
 public class CaptureUI : MonoBehaviour
 {
+    [Header("UI References")]
     public Slider captureSlider;
-    public GameObject captureContainer; // optional parent panel to toggle visibility
+    public GameObject captureContainer; // Optional parent panel to toggle visibility
 
-    private CapturePoint capturePoint;
+    [Header("Capture System References")]
+    public CapturePoint capturePoint;   // Can assign manually in Inspector
+
+    private PlayerMovement player;
 
     void Start()
     {
-        // find capture point in the scene
-        capturePoint = FindObjectOfType<CapturePoint>();
+        // Hide UI initially
+        if (captureContainer != null)
+            captureContainer.SetActive(false);
+
+        // Find player automatically
+        player = FindFirstObjectByType<PlayerMovement>();
+
+        // Find capture point automatically if not assigned
+        if (capturePoint == null)
+            capturePoint = FindFirstObjectByType<CapturePoint>();
+
+        // Subscribe to capture point events if available
         if (capturePoint != null)
         {
             capturePoint.onCaptureProgress += UpdateProgress;
             capturePoint.onCaptureEnter += ShowUI;
             capturePoint.onCaptureExit += HideUI;
         }
-
-        if (captureContainer != null)
-            captureContainer.SetActive(false);
-    }
-
-    void UpdateProgress(float current, float required)
-    {
-        if (captureSlider != null)
+        else
         {
-            captureSlider.value = current / required;
+            Debug.LogWarning("No CapturePoint found in the scene for CaptureUI!");
         }
     }
 
-    void ShowUI()
+    void OnDestroy()
+    {
+        // Unsubscribe to avoid memory leaks
+        if (capturePoint != null)
+        {
+            capturePoint.onCaptureProgress -= UpdateProgress;
+            capturePoint.onCaptureEnter -= ShowUI;
+            capturePoint.onCaptureExit -= HideUI;
+        }
+    }
+
+    private void UpdateProgress(float current, float required)
+    {
+        if (captureSlider != null)
+        {
+            // Only update the slider when player is inside the zone
+            captureSlider.value = Mathf.Clamp01(current / required);
+        }
+    }
+
+    private void ShowUI()
     {
         if (captureContainer != null)
             captureContainer.SetActive(true);
     }
 
-    void HideUI()
+    private void HideUI()
     {
         if (captureContainer != null)
             captureContainer.SetActive(false);

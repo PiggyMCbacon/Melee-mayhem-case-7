@@ -14,20 +14,24 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Mouse Look")]
     public Transform cameraHolder;
-    public float mouseSensitivity = 100f;
-    public float lookLimit = 80f;
+    public float mouseSensitivity = 120f;
+    
 
     private Rigidbody rb;
     private Vector3 moveInput;
-    private Vector3 moveVelocity;
     private bool isGrounded;
-    private float rotationX = 0f;
+    private float pitchRotation = 0f; // vertical look
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        // Lock and hide cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // Prevent tipping
+        rb.freezeRotation = true;
     }
 
     void Update()
@@ -47,12 +51,10 @@ public class PlayerMovement : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        rotationX -= mouseY;
-        rotationX = Mathf.Clamp(rotationX, -lookLimit, lookLimit);
+        pitchRotation -= mouseY;
+        pitchRotation = Mathf.Clamp(pitchRotation, -80f, 80f); // hardcoded limit
 
-        // Rotate camera pitch
-        cameraHolder.localRotation = Quaternion.Euler(rotationX, 0f, 0f);
-        // Rotate player yaw
+        cameraHolder.localRotation = Quaternion.Euler(pitchRotation, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
     }
 
@@ -61,7 +63,15 @@ public class PlayerMovement : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
-        Vector3 moveDir = (transform.forward * v + transform.right * h).normalized;
+        // Camera-relative movement
+        Vector3 camForward = cameraHolder.forward;
+        Vector3 camRight = cameraHolder.right;
+        camForward.y = 0f;
+        camRight.y = 0f;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        Vector3 moveDir = (camForward * v + camRight * h).normalized;
         moveInput = moveDir * moveSpeed;
     }
 
@@ -71,7 +81,7 @@ public class PlayerMovement : MonoBehaviour
 
         float control = isGrounded ? 1f : airControl;
         Vector3 targetVelocity = new Vector3(moveInput.x, rb.linearVelocity.y, moveInput.z);
-        Vector3 velocity = Vector3.Lerp(rb.linearVelocity, transform.TransformDirection(targetVelocity), Time.fixedDeltaTime * acceleration * control);
+        Vector3 velocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * acceleration * control);
         rb.linearVelocity = velocity;
     }
 

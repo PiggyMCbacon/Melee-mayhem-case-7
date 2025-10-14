@@ -25,7 +25,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 21295
+  controlID: 24746
   draggingID: 0
 --- !u!114 &2
 MonoBehaviour:
@@ -152,7 +152,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 21226
+  controlID: 24676
   draggingID: 0
 --- !u!114 &4
 MonoBehaviour:
@@ -817,9 +817,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: -6.806711, y: 6.1843743, z: -7.938993}
+    m_Target: {x: -12.613954, y: -9.786506, z: -8.770536}
     speed: 2
-    m_Value: {x: -6.806711, y: 6.1843743, z: -7.938993}
+    m_Value: {x: -12.613954, y: -9.786506, z: -8.770536}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -865,9 +865,9 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.43292245, y: 0.018117387, z: -0.00868707, w: -0.90125144}
+    m_Target: {x: 0.12507072, y: -0.85751027, z: 0.2473212, w: 0.43354425}
     speed: 2
-    m_Value: {x: -0.43290523, y: 0.018116666, z: -0.008686724, w: -0.90121555}
+    m_Value: {x: 0.12506479, y: -0.85746956, z: 0.24730948, w: 0.43352368}
   m_Size:
     m_Target: 10
     speed: 2
@@ -1105,7 +1105,7 @@ MonoBehaviour:
     m_SkipHidden: 1
     m_SearchArea: 1
     m_Folders:
-    - Assets/SCRIPTS/Game Scripts
+    - Assets
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1115,15 +1115,15 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 61
   m_LastFolders:
-  - Assets/SCRIPTS/Game Scripts
+  - Assets
   m_LastFoldersGridSize: 61
   m_LastProjectPath: C:\Users\jacob\Unity projects\Melee mayhem Case 7\Melee-mayhem-case-7
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: f4bf0000
-    m_LastClickedID: 49140
+    m_SelectedIDs: b8a70000
+    m_LastClickedID: 42936
     m_ExpandedIDs: 00000000b8a7000086bf00009abf0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -1179,8 +1179,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: ca40ffff
-    m_LastClickedInstanceID: -48950
+    m_SelectedInstanceIDs: 464fffff
+    m_LastClickedInstanceID: -45242
     m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c86700001073000000000000
     m_RenameOverlay:
@@ -1199,7 +1199,7 @@ MonoBehaviour:
       m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_TrimLeadingAndTrailingWhitespace: 0
-      m_ClientGUIView: {fileID: 8}
+      m_ClientGUIView: {fileID: 4}
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
       m_InstanceID: 0
@@ -1207,7 +1207,7 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
     m_NewAssetIndexInList: -1
-    m_ScrollPosition: {x: 0, y: 0}
+    m_ScrollPosition: {x: 0, y: 26.666626}
     m_GridSize: 61
   m_SkipHiddenPackages: 1
   m_DirectoriesAreaWidth: 226.66669
@@ -1278,7 +1278,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 3a86ffff
       m_LastClickedID: 0
-      m_ExpandedIDs: 8a40ffffaa40ffffca40ffff7464ffff8c65ffffa066fffff06afffffc86ffff74d4ffff36d5ffffb2e5ffffa6e7ffff6cf3ffffd4f3fffff6f4ffffc8f5ffff1efbffff88ac0000d8ac000036c100003ac100003ec1000048c10000
+      m_ExpandedIDs: 7614ffff8a40ffffaa40ffffca40ffff7464ffff8c65ffffa066fffff06afffffc86ffff74d4ffff36d5ffffb2e5ffffa6e7ffff6cf3ffffd4f3fffff6f4ffffc8f5ffff1efbffff88ac0000d8ac000036c100003ac100003ec1000048c10000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1371,8 +1371,8 @@ MonoBehaviour:
     m_CachedPref: 160
     m_ControlHash: -371814159
     m_PrefName: Preview_InspectorPreview
-  m_LastInspectedObjectInstanceID: 49480
-  m_LastVerticalScrollValue: 388.80002
+  m_LastInspectedObjectInstanceID: -1
+  m_LastVerticalScrollValue: 0
   m_GlobalObjectId: 
   m_InspectorMode: 0
   m_LockTracker:

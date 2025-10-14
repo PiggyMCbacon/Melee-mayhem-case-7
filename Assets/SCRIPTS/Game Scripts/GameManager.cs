@@ -1,21 +1,34 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager I { get; private set; }
 
-    [Header("Capture")]
+    [Header("Capture Settings")]
+    [Tooltip("Seconds required to hold the capture point for victory.")]
     public float captureRequiredSeconds = 120f;
+
+    [Tooltip("Name of the victory scene to load after capture.")]
     public string victorySceneName = "VictoryScene";
 
-    [Header("Spawner")]
+    [Header("Spawner Control")]
+    [Tooltip("Tracks how long the match has been running.")]
     public float matchElapsedTime { get; private set; } = 0f;
+
+    private bool victoryTriggered = false;
 
     private void Awake()
     {
-        if (I == null) I = this;
-        else Destroy(gameObject);
+        if (I != null && I != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        I = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Update()
@@ -23,31 +36,49 @@ public class GameManager : MonoBehaviour
         matchElapsedTime += Time.deltaTime;
     }
 
+    /// <summary>
+    /// Calculates how many enemies should be allowed active based on elapsed time.
+    /// </summary>
     public int AllowedActiveEnemies()
     {
-        // first 20s => 1 active. then +1 every 20 seconds
-        // floor(matchElapsedTime / 20)
+        // First 20 seconds → 1 active enemy
+        // Every additional 20 seconds → +1
         int extra = Mathf.FloorToInt(matchElapsedTime / 20f);
-        return 1 + extra;
+        return Mathf.Clamp(1 + extra, 1, 10); // clamp max if needed
     }
 
+    /// <summary>
+    /// Called by CapturePoint when the player wins.
+    /// </summary>
     public void Victory()
     {
-        // Called by CapturePoint when player reaches captureRequiredSeconds
+        if (victoryTriggered) return;
+        victoryTriggered = true;
         StartCoroutine(EndAndLoadVictory());
     }
 
-    System.Collections.IEnumerator EndAndLoadVictory()
+    private IEnumerator EndAndLoadVictory()
     {
-        // fade handled by ScreenFader
-        var fader = FindObjectOfType<ScreenFader>();
+        // Try to fade out if a fader exists
+        var fader = FindFirstObjectByType<ScreenFader>();
         if (fader != null)
         {
             yield return fader.FadeToBlack(2f); // fade duration 2s
         }
+        else
+        {
+            Debug.LogWarning("ScreenFader not found — skipping fade.");
+            yield return new WaitForSeconds(2f);
+        }
 
-        // load victory scene
+        // Load victory scene safely
         if (!string.IsNullOrEmpty(victorySceneName))
+        {
             SceneManager.LoadScene(victorySceneName);
+        }
+        else
+        {
+            Debug.LogError("Victory scene name not set in GameManager!");
+        }
     }
 }
