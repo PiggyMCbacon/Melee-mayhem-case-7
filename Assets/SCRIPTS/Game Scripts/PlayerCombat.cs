@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(AudioSource))]
 public class PlayerCombat : MonoBehaviour
 {
     [Header("Attack Settings")]
@@ -18,6 +19,10 @@ public class PlayerCombat : MonoBehaviour
     public Vector3 swingRotation = new Vector3(90, 0, 0);
     public float swingSpeed = 6f;
 
+    [Header("Audio")]
+    public AudioClip bonkSound;
+    private AudioSource audioSource;
+
     // runtime
     private bool isCharging = false;
     private bool chargedReady = false;
@@ -26,8 +31,17 @@ public class PlayerCombat : MonoBehaviour
     // This set tracks which enemies were already hit during the current swing
     private HashSet<GameObject> hitThisSwing = new HashSet<GameObject>();
 
+    void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+    }
+
     void Update()
     {
+        // Ignore input when paused
+        if (PauseMenu.GameIsPaused) return;
+
         HandleAttack();
     }
 
@@ -68,7 +82,6 @@ public class PlayerCombat : MonoBehaviour
     {
         if (club == null) yield break;
 
-        // clear the per-swing hit list so new swing can hit enemies again
         hitThisSwing.Clear();
 
         Quaternion startRot = Quaternion.Euler(chargedRotation);
@@ -82,8 +95,6 @@ public class PlayerCombat : MonoBehaviour
             yield return null;
         }
 
-        // hit detection
-        // Use layer mask if provided; otherwise fallback to all layers.
         Collider[] hits;
         if (enemyLayer.value != 0)
             hits = Physics.OverlapSphere(club.position, hitRange, enemyLayer);
@@ -92,24 +103,25 @@ public class PlayerCombat : MonoBehaviour
 
         foreach (var c in hits)
         {
-            // find the enemy root (in case hit child colliders)
             var enemy = c.GetComponentInParent<EnemyAI>();
             if (enemy == null) continue;
 
             GameObject enemyRoot = enemy.gameObject;
-            if (hitThisSwing.Contains(enemyRoot)) continue; // already hit this swing
+            if (hitThisSwing.Contains(enemyRoot)) continue;
 
             hitThisSwing.Add(enemyRoot);
 
-            // compute direction and apply damage + knockback force
             Vector3 dir = (enemy.transform.position - transform.position).normalized;
-            int damage = 1; // club does 1 damage per hit (adjust if you have charged attack)
+            int damage = 1;
             float force = hitForce * multiplier;
 
             enemy.TakeHit(dir, force, damage, false);
+
+            // Play bonk sound
+            if (bonkSound != null && audioSource != null)
+                audioSource.PlayOneShot(bonkSound);
         }
 
-        // return to idle
         t = 0f;
         while (t < 1f)
         {

@@ -50,19 +50,21 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void HandleMouseLook()
-    {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+{
+    if (PauseMenu.GameIsPaused) return; // 🛑 stop camera rotation when paused
 
-        pitchRotation -= mouseY;
-        pitchRotation = Mathf.Clamp(pitchRotation, -80f, 80f);
+    float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+    float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        cameraHolder.localEulerAngles = new Vector3(
-            pitchRotation,
-            cameraHolder.localEulerAngles.y + mouseX,
-            cameraHolder.localEulerAngles.z
-        );
-    }
+    pitchRotation -= mouseY;
+    pitchRotation = Mathf.Clamp(pitchRotation, -80f, 80f);
+
+    cameraHolder.localEulerAngles = new Vector3(
+        pitchRotation,
+        cameraHolder.localEulerAngles.y + mouseX,
+        cameraHolder.localEulerAngles.z
+    );
+}
 
     void HandleMovementInput()
     {

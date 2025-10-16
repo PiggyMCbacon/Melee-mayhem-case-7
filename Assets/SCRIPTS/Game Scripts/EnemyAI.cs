@@ -22,8 +22,8 @@ public class EnemyAI : MonoBehaviour
     public float clubHitRange = 1.5f;
 
     [Header("Lunge")]
-    public float lungeDistance = 1.2f;   // forward attack lunge
-    public float lungeDuration = 0.2f;   // duration of the lunge
+    public float lungeDistance = 1.2f;
+    public float lungeDuration = 0.2f;
 
     [Header("Ragdoll")]
     public Rigidbody[] ragdollBodies;
@@ -69,6 +69,8 @@ public class EnemyAI : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1f; // ensure no slow-motion carryover
+
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
 
         agent = GetComponent<NavMeshAgent>();
@@ -82,7 +84,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         SetRagdoll(false);
-        SpawnHpBar(); // Spawn HP bar once at start
+        SpawnHpBar();
     }
 
     void Update()
@@ -124,22 +126,37 @@ public class EnemyAI : MonoBehaviour
 
     private void MoveTowardsPlayer()
     {
-        if (agent == null || !agent.isOnNavMesh) return;
+        if (agent == null || player == null) return;
 
+        // Ensure agent is active and on NavMesh
+        if (!agent.enabled)
+        {
+            if (NavMesh.SamplePosition(transform.position, out var navHit, 2f, NavMesh.AllAreas))
+            {
+                agent.enabled = true;
+                agent.Warp(navHit.position);
+            }
+            else
+            {
+                return; // Can't move if not on NavMesh
+            }
+        }
+
+        // Continuous destination update
         agent.isStopped = false;
         agent.speed = moveSpeed;
         agent.acceleration = agentAcceleration;
+        agent.updatePosition = true;
+        agent.updateRotation = false;
         agent.SetDestination(player.position);
 
+        // Smooth rotation towards player
         Vector3 dir = player.position - transform.position;
         dir.y = 0;
-        if (dir.sqrMagnitude > 0.1f)
+        if (dir.sqrMagnitude > 0.001f)
         {
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                Quaternion.LookRotation(dir),
-                Time.deltaTime * rotationSpeed
-            );
+            Quaternion targetRot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * rotationSpeed);
         }
     }
 
@@ -156,7 +173,7 @@ public class EnemyAI : MonoBehaviour
         if (lookDir.sqrMagnitude > 0.01f)
             transform.rotation = Quaternion.LookRotation(lookDir);
 
-        // Optional: club windup
+        // Club windup
         if (enemyClub != null)
         {
             float t = 0f;
@@ -225,7 +242,6 @@ public class EnemyAI : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        // Update existing HP bar only
         if (hpUi != null)
             hpUi.SetHealth((float)currentHealth / maxHealth);
 
@@ -265,9 +281,13 @@ public class EnemyAI : MonoBehaviour
 
         if (agent != null)
         {
-            agent.enabled = true;
+            yield return new WaitForSeconds(0.05f); // buffer for physics to settle
+            if (!agent.enabled) agent.enabled = true;
             if (NavMesh.SamplePosition(transform.position, out var navHit, 2f, NavMesh.AllAreas))
                 agent.Warp(navHit.position);
+            agent.isStopped = false;
+            agent.updatePosition = true;
+            agent.updateRotation = false;
         }
     }
 
@@ -276,35 +296,28 @@ public class EnemyAI : MonoBehaviour
         if (isLaunched) return;
         isLaunched = true;
 
-        // Delete the club
         if (enemyClub != null)
             Destroy(enemyClub.gameObject);
 
-        // Kill AI & animation
         if (agent != null) agent.enabled = false;
         if (animator != null) animator.enabled = false;
 
-        // Enable physics
         rb.isKinematic = false;
         rb.useGravity = true;
         rb.constraints = RigidbodyConstraints.None;
 
-        // Ensure collider is active
         var col = GetComponent<Collider>();
         if (col != null) col.enabled = true;
 
-        // Apply force + random torque for tumbling
         rb.AddForce(direction.normalized * force, ForceMode.Impulse);
         rb.AddTorque(new Vector3(
-            UnityEngine.Random.Range(-1f,1f),
-            UnityEngine.Random.Range(-1f,1f),
-            UnityEngine.Random.Range(-1f,1f)) * force, ForceMode.Impulse);
+            UnityEngine.Random.Range(-1f, 1f),
+            UnityEngine.Random.Range(-1f, 1f),
+            UnityEngine.Random.Range(-1f, 1f)) * force, ForceMode.Impulse);
 
-        // Remove HP bar
         if (hpBarInstance != null) Destroy(hpBarInstance);
         onDie?.Invoke();
 
-        // Destroy after a few seconds
         Destroy(gameObject, 6f);
     }
 
