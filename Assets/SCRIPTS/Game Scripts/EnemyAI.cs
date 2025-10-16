@@ -22,8 +22,8 @@ public class EnemyAI : MonoBehaviour
     public float clubHitRange = 1.5f;
 
     [Header("Lunge")]
-    public float lungeDistance = 1.2f;   
-    public float lungeDuration = 0.2f;   
+    public float lungeDistance = 1.2f;   // forward attack lunge
+    public float lungeDuration = 0.2f;   // duration of the lunge
 
     [Header("Ragdoll")]
     public Rigidbody[] ragdollBodies;
@@ -82,7 +82,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         SetRagdoll(false);
-        SpawnHpBar(); 
+        SpawnHpBar(); // Spawn HP bar once at start
     }
 
     void Update()
@@ -96,6 +96,7 @@ public class EnemyAI : MonoBehaviour
         else
             MoveTowardsPlayer();
 
+        // Always update HP bar
         if (hpUi != null)
         {
             hpUi.SetHealth((float)currentHealth / maxHealth);
@@ -149,11 +150,13 @@ public class EnemyAI : MonoBehaviour
 
         if (agent != null) agent.isStopped = true;
 
+        // Rotate towards player
         Vector3 lookDir = player.position - transform.position;
         lookDir.y = 0;
         if (lookDir.sqrMagnitude > 0.01f)
             transform.rotation = Quaternion.LookRotation(lookDir);
 
+        // Optional: club windup
         if (enemyClub != null)
         {
             float t = 0f;
@@ -169,6 +172,7 @@ public class EnemyAI : MonoBehaviour
 
         yield return new WaitForSeconds(0.12f);
 
+        // Lunge forward
         Vector3 startPos = transform.position;
         Vector3 targetPos = startPos + transform.forward * lungeDistance;
         float elapsed = 0f;
@@ -179,6 +183,7 @@ public class EnemyAI : MonoBehaviour
             yield return null;
         }
 
+        // Hit check
         Vector3 origin = clubTip ? clubTip.position : transform.position + transform.forward * 0.8f;
         Collider[] hits = Physics.OverlapSphere(origin, clubHitRange);
         foreach (var c in hits)
@@ -194,6 +199,7 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
+        // Swing back to idle
         if (enemyClub != null)
         {
             float t = 0f;
@@ -219,6 +225,7 @@ public class EnemyAI : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
+        // Update existing HP bar only
         if (hpUi != null)
             hpUi.SetHealth((float)currentHealth / maxHealth);
 
@@ -238,13 +245,13 @@ public class EnemyAI : MonoBehaviour
         rb.angularDamping = physicsAngularDrag;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
 
-        rb.velocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.AddForce(dir.normalized * force, ForceMode.Impulse);
 
         yield return new WaitForSeconds(knockbackDuration);
 
-        rb.velocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
         if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out var hit, 3f))
@@ -269,45 +276,36 @@ public class EnemyAI : MonoBehaviour
         if (isLaunched) return;
         isLaunched = true;
 
-        SetRagdoll(true);
+        // Delete the club
+        if (enemyClub != null)
+            Destroy(enemyClub.gameObject);
 
-        if (ragdollBodies != null && ragdollBodies.Length > 0)
-        {
-            foreach (var r in ragdollBodies)
-            {
-                if (r == null) continue;
-                r.isKinematic = false;
-                r.useGravity = true;
-                r.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-                r.linearDamping = 0.05f;
-                r.angularDamping = 0.05f;
-                r.constraints = RigidbodyConstraints.None; // remove constraints
-                r.AddForce(direction.normalized * force, ForceMode.Impulse);
-                r.AddTorque(UnityEngine.Random.insideUnitSphere * force * 0.5f, ForceMode.Impulse);
-            }
-        }
-        else
-        {
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.constraints = RigidbodyConstraints.None; // remove constraints
-            rb.linearDamping = 0.05f;
-            rb.angularDamping = 0.05f;
-            rb.AddForce(direction.normalized * force, ForceMode.Impulse);
-            rb.AddTorque(UnityEngine.Random.insideUnitSphere * force * 0.5f, ForceMode.Impulse);
-        }
+        // Kill AI & animation
+        if (agent != null) agent.enabled = false;
+        if (animator != null) animator.enabled = false;
 
+        // Enable physics
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        rb.constraints = RigidbodyConstraints.None;
+
+        // Ensure collider is active
+        var col = GetComponent<Collider>();
+        if (col != null) col.enabled = true;
+
+        // Apply force + random torque for tumbling
+        rb.AddForce(direction.normalized * force, ForceMode.Impulse);
+        rb.AddTorque(new Vector3(
+            UnityEngine.Random.Range(-1f,1f),
+            UnityEngine.Random.Range(-1f,1f),
+            UnityEngine.Random.Range(-1f,1f)) * force, ForceMode.Impulse);
+
+        // Remove HP bar
         if (hpBarInstance != null) Destroy(hpBarInstance);
         onDie?.Invoke();
-        StartCoroutine(SnapRagdollToGround());
-        Destroy(gameObject, 6f);
-    }
 
-    IEnumerator SnapRagdollToGround()
-    {
-        yield return new WaitForSeconds(0.4f);
-        if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out var hit, 10f))
-            transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);
+        // Destroy after a few seconds
+        Destroy(gameObject, 6f);
     }
 
     private void SpawnHpBar()
@@ -320,7 +318,7 @@ public class EnemyAI : MonoBehaviour
         if (hpUi != null)
         {
             hpUi.SetTarget(transform);
-            hpUi.SetHealth(1f);
+            hpUi.SetHealth(2f);
         }
     }
 
@@ -337,7 +335,6 @@ public class EnemyAI : MonoBehaviour
                 r.useGravity = on;
                 r.linearDamping = on ? 2f : 0.05f;
                 r.angularDamping = on ? 1f : 0.05f;
-                r.constraints = on ? RigidbodyConstraints.None : RigidbodyConstraints.FreezeRotation;
             }
         }
 
@@ -353,6 +350,7 @@ public class EnemyAI : MonoBehaviour
             rb.useGravity = on;
             var col = GetComponent<Collider>();
             if (col != null) col.enabled = !on;
+
             rb.constraints = on ? RigidbodyConstraints.None : RigidbodyConstraints.FreezeRotation;
         }
     }

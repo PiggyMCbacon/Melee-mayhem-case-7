@@ -1,0 +1,92 @@
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.Collections;
+
+public class VictoryScreenButtons : MonoBehaviour
+{
+    [Header("Scene Names")]
+    public string mainMenuSceneName = "MainMenu";  // your main menu scene
+
+    [Header("Fade Settings")]
+    public Image fadeImage;       // assign a full-screen black UI Image
+    public float fadeDuration = 1f;
+
+    private void Awake()
+    {
+        // Make sure the fade starts transparent
+        if (fadeImage != null)
+        {
+            fadeImage.gameObject.SetActive(true);
+            fadeImage.color = new Color(0, 0, 0, 0); 
+        }
+
+        // Unlock and show the cursor so buttons are clickable
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    /// <summary>
+    /// Loads the main menu scene with fade.
+    /// </summary>
+    public void OnMainMenuButton()
+    {
+        if (fadeImage != null)
+            StartCoroutine(FadeAndLoadScene(mainMenuSceneName));
+        else
+            SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    /// <summary>
+    /// Quits the game application.
+    /// </summary>
+    public void OnQuitButton()
+    {
+        // Optional: fade to black before quitting
+        if (fadeImage != null)
+            StartCoroutine(FadeAndQuit());
+        else
+            Application.Quit();
+    }
+
+    private IEnumerator FadeAndLoadScene(string sceneName)
+    {
+        float timer = 0f;
+        Color startColor = fadeImage.color;
+        Color endColor = new Color(0, 0, 0, 1);
+
+        while (timer < fadeDuration)
+        {
+            timer += Time.deltaTime;
+            fadeImage.color = Color.Lerp(startColor, endColor, timer / fadeDuration);
+            yield return null;
+        }
+
+        fadeImage.color = endColor;
+
+        // Lock cursor for the main menu if desired (optional)
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        SceneManager.LoadScene(sceneName);
+    }
+
+    private IEnumerator FadeAndQuit()
+    {
+        float timer = 0f;
+        Color startColor = fadeImage.color;
+        Color endColor = new Color(0, 0, 0, 1);
+
+        while (timer < fadeDuration)
+        {
+            timer += Time.deltaTime;
+            fadeImage.color = Color.Lerp(startColor, endColor, timer / fadeDuration);
+            yield return null;
+        }
+
+        fadeImage.color = endColor;
+
+        Application.Quit();
+        Debug.Log("Game Quit"); // works in editor
+    }
+}

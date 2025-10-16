@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8295644426488205918}
-  - component: {fileID: 8450400045848670902}
   m_Layer: 3
   m_Name: smol
   m_TagString: Untagged
@@ -32,27 +31,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1019596302119615998}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &8450400045848670902
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 501177831912466902}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6910118228605277384
 GameObject:
   m_ObjectHideFlags: 0
@@ -223,10 +201,8 @@ MonoBehaviour:
   - {fileID: 692090693004435600}
   ragdollColliders:
   - {fileID: 2667352031440626789}
-  - {fileID: 0}
-  - {fileID: 8450400045848670902}
   animator: {fileID: 0}
-  knockbackDuration: 0.5
+  knockbackDuration: 0.65
   physicsDrag: 4
   physicsAngularDrag: 2
   enemyHpBarPrefab: {fileID: 0}
