@@ -12958,7 +12958,7 @@ MonoBehaviour:
   groundCheck: {fileID: 1877726129}
   groundCheckRadius: 0.3
   cameraHolder: {fileID: 926401221}
-  mouseSensitivity: 10
+  mouseSensitivity: 1.5
 --- !u!114 &1554553861
 MonoBehaviour:
   m_ObjectHideFlags: 0

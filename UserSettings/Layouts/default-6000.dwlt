@@ -249,8 +249,8 @@ MonoBehaviour:
     y: 0
     width: 288
     height: 621.3333
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 76}
+  m_MaxSize: {x: 4001, y: 4026}
   m_ActualView: {fileID: 18}
   m_Panes:
   - {fileID: 18}
@@ -380,7 +380,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 78.66667
+    y: 24
     width: 615
     height: 348
   m_SerializedDataModeController:
@@ -1043,7 +1043,7 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: 0.033183623, y: 0.014784314, z: 0.0005819142, w: -0.9994981}
     speed: 2
-    m_Value: {x: 0.03317837, y: 0.014781973, z: 0.0005818221, w: -0.99933994}
+    m_Value: {x: 0.033183623, y: 0.014784315, z: 0.0005819142, w: -0.9994982}
   m_Size:
     m_Target: 10
     speed: 2
@@ -1228,7 +1228,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 452.6667
+    y: 398
     width: 615
     height: 221.33331
   m_SerializedDataModeController:
@@ -1272,7 +1272,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 10.666687}
     m_SelectedIDs: faaa0000
     m_LastClickedID: 43770
-    m_ExpandedIDs: 00000000fca80000fea8000000a90000e6aa0000e8aa0000f2aa0000faaa0000
+    m_ExpandedIDs: 0000000050ab000052ab000054ab000056ab000058ab00005aab0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1301,7 +1301,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 107.0018}
     m_SelectedIDs: 58710000
     m_LastClickedID: 29016
-    m_ExpandedIDs: 00000000fca80000fea8000000a90000e6aa0000e8aa0000f2aa0000
+    m_ExpandedIDs: 0000000050ab000052ab000054ab000056ab000058ab00005aab0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1380,8 +1380,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Hierarchy\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 616
-    y: 78.66667
+    x: 617
+    y: 24
     width: 374
     height: 595.3333
   m_SerializedDataModeController:
@@ -1446,8 +1446,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Inspector\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 992
-    y: 78.66667
+    x: 993
+    y: 24
     width: 287
     height: 595.3333
   m_SerializedDataModeController:
